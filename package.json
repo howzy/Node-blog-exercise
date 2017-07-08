@@ -1,0 +1,25 @@
+{
+  "name": "node-blog-exercise",
+  "version": "1.0.0",
+  "description": "使用 Express + MongoDB 搭建多人博客",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zh-once/Node-blog-exercise.git"
+  },
+  "keywords": [
+    "mongodb",
+    "express",
+    "node",
+    "blog"
+  ],
+  "author": "zh-once",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zh-once/Node-blog-exercise/issues"
+  },
+  "homepage": "https://github.com/zh-once/Node-blog-exercise#readme"
+}
