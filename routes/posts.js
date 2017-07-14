@@ -81,7 +81,7 @@ router.get('/:postId', function(req, res, next) {
 });
 
 // GET /posts/:postId/edit 更新文章页
-router.get('/posts/:postId/edit', checkLogin, function(req, res, next) {
+router.get('/:postId/edit', checkLogin, function(req, res, next) {
   var postId = req.params.postId;
   var author = req.session.user._id;
 
@@ -102,12 +102,32 @@ router.get('/posts/:postId/edit', checkLogin, function(req, res, next) {
 
 // POST /posts/:postId/edit 更新一篇文章
 router.post('/:postId/edit', checkLogin, function(req, res, next) {
-  res.send(req.flash());
+  var postId = req.params.postId;
+  var author = req.session.user._id;
+  var title = req.fields.title;
+  var content = req.fields.content;
+
+  PostModel.updatePostById(postId, author, { title: title, content: content })
+    .then(function () {
+      req.flash('success', '编辑文章成功');
+      // 编辑成功后跳转到上一页
+      res.redirect(`/posts/${postId}`)
+    })
+    .catch(next);
 });
 
 // GET /posts/:postId/remove 删除一篇文章
-router.get('/posts/:postId/remove', checkLogin, function(req, res, next) {
-  res.send(req.flash());
+router.get('/:postId/remove', checkLogin, function(req, res, next) {
+  var postId = req.params.postId;
+  var author = req.session.user._id;
+
+  PostModel.delPostById(postId, author)
+    .then(function () {
+      req.flash('success', '删除文章成功');
+      // 删除成功后跳转到主页
+      res.redirect('/posts');
+    })
+    .catch(next);
 });
 
 // POST /posts/:postId/comment 创建一条留言
@@ -116,7 +136,7 @@ router.post('/:postId/comment', checkLogin, function(req, res, next) {
 });
 
 // GET /posts/:postId/comment/:commentId/remove 删除一条留言
-router.get('/posts/:postId/comment/:commentId/remove', checkLogin, function(req, res, next) {
+router.get('/:postId/comment/:commentId/remove', checkLogin, function(req, res, next) {
   res.send(req.flash());
 });
 
