@@ -48,6 +48,7 @@ module.exports = {
       .findOne({ _id: postId })
       .populate({ path: 'author', model: 'User' })
       .addCreatedAt()
+      .addCommentsCount()
       .contentToHtml()
       .exec();
   },
@@ -63,6 +64,7 @@ module.exports = {
       .populate({ path: 'author', model: 'User' })
       .sort({ _id: -1 })
       .addCreatedAt()
+      .addCommentsCount()
       .contentToHtml()
       .exec();
   },
@@ -89,6 +91,13 @@ module.exports = {
 
   // 通过用户 id 和文章 id 删除一篇文章
   delPostById: function delPostById(postId, author) {
-    return Post.remove({ author: author, _id: postId }).exec();
+    return Post.remove({ author: author, _id: postId })
+      .exec()  
+      .then(function (res) {
+        // 文章删除后，再删除该文章下的所有留言
+        if (res.result.ok && res.result.n > 0) {
+          return CommentModel.delCommentsByPostId(postId);
+        }
+      });
   }
 };
