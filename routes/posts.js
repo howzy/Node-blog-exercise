@@ -7,7 +7,7 @@ var checkLogin = require('../middlewares/check').checkLogin;
 
 // GET /posts 所有用户或者特定用户的文章页
 //  eg: GET /posts?author=xxx
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   var author = req.query.author;
 
   PostModel.getPosts(author)
@@ -20,7 +20,7 @@ router.get('/', function(req, res, next) {
 });
 
 // POST /posts 发表一篇文章
-router.post('/', checkLogin, function(req, res, next) {
+router.post('/', checkLogin, function (req, res, next) {
   var author = req.session.user._id;
   var title = req.fields.title;
   var content = req.fields.content;
@@ -56,12 +56,12 @@ router.post('/', checkLogin, function(req, res, next) {
 });
 
 // GET /posts/create 发表文章页
-router.get('/create', checkLogin, function(req, res, next) {
+router.get('/create', checkLogin, function (req, res, next) {
   res.render('create');
 });
 
 // GET /posts/:postId 单独一篇的文章页
-router.get('/:postId', function(req, res, next) {
+router.get('/:postId', function (req, res, next) {
   var postId = req.params.postId;
 
   Promise.all([
@@ -69,23 +69,23 @@ router.get('/:postId', function(req, res, next) {
     CommentModel.getComments(postId),// 获取该文章所有留言
     PostModel.incPv(postId)// pv 加 1
   ])
-  .then(function (result) {
-    var post = result[0];
-    var comments = result[1];
-    if (!post) {
-      throw new Error('该文章不存在');
-    }
+    .then(function (result) {
+      var post = result[0];
+      var comments = result[1];
+      if (!post) {
+        throw new Error('该文章不存在');
+      }
 
-    res.render('post', {
-      post: post,
-      comments: comments
-    });
-  })
-  .catch(next);
+      res.render('post', {
+        post: post,
+        comments: comments
+      });
+    })
+    .catch(next);
 });
 
 // GET /posts/:postId/edit 更新文章页
-router.get('/:postId/edit', checkLogin, function(req, res, next) {
+router.get('/:postId/edit', checkLogin, function (req, res, next) {
   var postId = req.params.postId;
   var author = req.session.user._id;
 
@@ -105,7 +105,7 @@ router.get('/:postId/edit', checkLogin, function(req, res, next) {
 });
 
 // POST /posts/:postId/edit 更新一篇文章
-router.post('/:postId/edit', checkLogin, function(req, res, next) {
+router.post('/:postId/edit', checkLogin, function (req, res, next) {
   var postId = req.params.postId;
   var author = req.session.user._id;
   var title = req.fields.title;
@@ -121,7 +121,7 @@ router.post('/:postId/edit', checkLogin, function(req, res, next) {
 });
 
 // GET /posts/:postId/remove 删除一篇文章
-router.get('/:postId/remove', checkLogin, function(req, res, next) {
+router.get('/:postId/remove', checkLogin, function (req, res, next) {
   var postId = req.params.postId;
   var author = req.session.user._id;
 
@@ -135,10 +135,19 @@ router.get('/:postId/remove', checkLogin, function(req, res, next) {
 });
 
 // POST /posts/:postId/comment 创建一条留言
-router.post('/:postId/comment', checkLogin, function(req, res, next) {
+router.post('/:postId/comment', checkLogin, function (req, res, next) {
   var author = req.session.user._id;
   var postId = req.params.postId;
   var content = req.fields.content;
+
+  try {
+    if (!content) {
+      throw new Error('请填写留言内容');
+    }
+  } catch (e) {
+    req.flash('error', e.message);
+    return res.redirect('back');
+  }
 
   var comment = {
     author: author,
@@ -156,7 +165,7 @@ router.post('/:postId/comment', checkLogin, function(req, res, next) {
 });
 
 // GET /posts/:postId/comment/:commentId/remove 删除一条留言
-router.get('/:postId/comment/:commentId/remove', checkLogin, function(req, res, next) {
+router.get('/:postId/comment/:commentId/remove', checkLogin, function (req, res, next) {
   var commentId = req.params.commentId;
   var author = req.session.user._id;
 
