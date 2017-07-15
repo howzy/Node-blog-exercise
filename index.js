@@ -87,7 +87,11 @@ app.use(function (err, req, res, next) {
   });
 });
 
-// 监听端口，启动程序
-app.listen(config.port, function () {
-  console.log(`${pkg.name} listening on port ${config.port}`);
-});
+if (module.parent) {// 如果 index.js 被 require 了，则导出 app，通常用于测试
+  module.exports = app;
+} else {
+  // 监听端口，启动程序
+  app.listen(config.port, function () {
+    console.log(`${pkg.name} listening on port ${config.port}`);
+  });
+}
